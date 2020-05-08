@@ -1,0 +1,2 @@
+C:\Diploma\Diploma\Debug\Diploma.exe
+C:\Diploma\Diploma\Debug\Diploma.pdb

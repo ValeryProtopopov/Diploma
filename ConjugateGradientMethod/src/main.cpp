@@ -58,34 +58,28 @@ double vectorNorm(const vec& V) // Преобразование для проверки
 
 vec conjugateGradientSolver(const matrix& A, const vec& V) {
 	int n = A.size();
-
-	vec X(n, 0.0); //Входной вектор x 0 может быть приблизительным начальным решением или 0. Я взял 0.
-
-	vec AX(n);
-	AX = matrixMultiplicationByVector(A, X);
-	vec R(n);
-	R = vectorCombination(1.0, V, -1.0, AX);
-	vec P = R;
-	vec RSold = R;
-
-	int k = 0;
-	while (k < n) {
-		vec AP = matrixMultiplicationByVector(A, P);
-		double alpha = innerProduct(RSold, RSold) / innerProduct(P, AP);
+	vec X(n, 0.0); //Входной вектор x_0 может быть приблизительным начальным решением или 0. Я взял 0.
 		
+	vec R = V;
+	vec P = R;
+	int k = 0;
+
+	while (k < n) {
+		vec RSold = R;
+		vec AP = matrixMultiplicationByVector(A, P);
+
+		double alpha = innerProduct(R, R) / innerProduct(P, AP);
 		X = vectorCombination(1.0, X, alpha, P);
 		R = vectorCombination(1.0, R, -alpha, AP);
 
-		vec RSnew = R;
-		if (vectorNorm(RSnew) < NEARZERO) 
+		if (vectorNorm(R) < NEARZERO) 
 			break;
 
-		P = vectorCombination(1.0, R, innerProduct(RSnew, RSnew) / innerProduct(RSold, RSold), P);
-		RSold = RSnew;
+		double beta = innerProduct(R, R) / innerProduct(RSold, RSold);
+		P = vectorCombination(1.0, R, beta, P);
 
 		k++;
 	}
-
 	return X;
 }
 

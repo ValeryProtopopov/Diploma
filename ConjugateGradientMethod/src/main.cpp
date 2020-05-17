@@ -6,7 +6,7 @@
 using namespace std;
 
 const double NEARZERO = 1.0e-10; // Интерпретация нуля, но не ноль
-const int SIZE = 2;
+const int SIZE = 5;
 const int RAND = 10;
 
 using vec = vector<double>; // Вектор
@@ -29,7 +29,10 @@ void randomAddMatrix(matrix &A, int N) {
 void printVector(const vec &V) {
 	int n = V.size();
 	for (auto i = 0; i < n; i++) {
-		cout << V[i] << " ";
+		double x = V[i];
+		if (abs(x) < NEARZERO) 
+			x = 0.0;
+		cout << x << " ";
 	}
 	cout << endl << endl;
 }
@@ -38,7 +41,10 @@ void printMatrix(const matrix &A) {
 	int n = A.size();
 	for (auto i = 0; i < n; i++) {
 		for (auto j = 0; j < n; j++) {
-			cout << A[i][j] << " ";
+			double x = A[i][j];
+			if (abs(x) < NEARZERO)
+				x = 0.0;
+			cout << x << " ";
 		}
 		cout << endl;
 	}

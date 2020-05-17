@@ -6,7 +6,7 @@
 using namespace std;
 
 const double NEARZERO = 1.0e-10; // Интерпретация нуля, но не ноль
-const int SIZE = 5;
+const int SIZE = 10;
 const int RAND = 10;
 
 using vec = vector<double>; // Вектор
@@ -127,7 +127,7 @@ matrix matrixCombination(const matrix &A, const matrix &B) {
 	return C;
 }
 
-matrix matrixCombinationOnNumber(const matrix &A, double X) {
+matrix matrixMultiplicationOnNumber(const matrix &A, double X) {
 	int n = A.size();
 	matrix C(n);
 	for (auto i = 0; i < n; i++) {
@@ -201,6 +201,7 @@ int main() {
 	
 	matrix Ab;
 	randomAddMatrix(Ab, SIZE); // Произвольная матрица B
+	cout << "Random Ab complete: " << clock() / 1000.0 << "ms" << endl;
 	while (!determinant(Ab)) // Проверка вырожденности матрицы B
 	{
 		cout << "GG" << endl;
@@ -208,31 +209,40 @@ int main() {
 		randomAddMatrix(AbNew, SIZE);
 		Ab = AbNew;
 	}
+	cout << "Determinent complete: " << clock() / 1000.0 << "ms" << endl;
 	
 	matrix Ab_t = transposeMatrix(Ab); // Транспонированная матрица B
+	cout << "Transpose complete: " << clock() / 1000.0 << "ms" << endl;
 
 	matrix AbAb_t = matrixMultiplication(Ab, Ab_t); // Положительно определенная матрица B*B'
+	cout << "Matrix mulyiplication complete: " << clock() / 1000.0 << "ms" << endl;
 
 	// А = (B + B') / 2, тогда это формула не нужная ?
-	matrix AbplusAb_t = matrixCombination(Ab, Ab_t); //B + B'
-	matrix A = matrixCombinationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, симметричная и положительная матрица
+	//matrix AbplusAb_t = matrixCombination(Ab, Ab_t); //B + B'
+	//cout << "Matrix plus complete:" << clock() / 1000.0 << "ms" << endl;
+	//matrix A = matrixMultiplicationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, симметричная и положительная матрица
+	//cout << "Matrix multiplication on number complete:" << clock() / 1000.0 << "ms" << endl;
 
-	A = AbAb_t;
+	matrix A = AbAb_t;
 	//A = { {2, 5}, {5, 13} }; // Для примера из вики
+	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
 	cout << "A:" << endl;
 	printMatrix(A);
 
 	vec B; // Вектор B
 	randomAddVector(B, SIZE);
 	//B = { 8, 5 }; // Для примера из вики
+	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
 	cout << "B:" << endl;
 	printVector(B);
 
 	vec X = conjugateGradientSolver(A, B); // Метод сопряженных градиентов
+	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
 	cout << "X:" << endl;
 	printVector(X);
 
 	vec Check = matrixMultiplicationByVector(A, X); // Проверяем результат
+	cout << "Time:" << clock() / 1000.0 << "ms" << endl;
 	cout << "Check:" << endl;
 	printVector(Check);
 

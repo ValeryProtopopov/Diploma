@@ -12,13 +12,13 @@ const int RAND = 10;
 using vec = vector<double>; // Вектор
 using matrix = vector<vec>; // Матрица
 
-void randomAddVector(vec& V, int N) {
+void randomAddVector(vec &V, int N) {
 	for (auto i = 0; i < N; i++) {
 		V.push_back(rand() % RAND);
 	}
 }
 
-void randomAddMatrix(matrix& A, int N) {
+void randomAddMatrix(matrix &A, int N) {
 	for (auto i = 0; i < N; i++) {
 		vector<double> v1;
 		randomAddVector(v1, N);
@@ -34,7 +34,7 @@ void printVector(const vec &V) {
 	cout << endl << endl;
 }
 
-void printMatrix(const matrix& A) {
+void printMatrix(const matrix &A) {
 	int n = A.size();
 	for (auto i = 0; i < n; i++) {
 		for (auto j = 0; j < n; j++) {
@@ -45,7 +45,7 @@ void printMatrix(const matrix& A) {
 	cout << endl;
 }
 
-matrix transposeMatrix(const matrix& A) {
+matrix transposeMatrix(const matrix &A) {
 	int n = A.size();
 	matrix A_T = A;
 	double temp;
@@ -57,7 +57,60 @@ matrix transposeMatrix(const matrix& A) {
 	return A_T;
 }
 
-matrix matrixCombination(const matrix& A, const matrix& B) {
+void getMiniMatrix(const matrix &A, matrix &B, int i, int j, int m) {
+	int di, dj;
+	di = 0;
+	for (auto ki = 0; ki < m - 1; ki++) {
+		if (ki == i) 
+			di = 1;
+		dj = 0;
+		for (auto kj = 0; kj < m - 1; kj++) {
+			if (kj == j) 
+				dj = 1;
+			B[ki].push_back(0);
+			B[ki][kj] = (A[ki + di][kj + dj]);
+		}
+	}
+}
+
+double determinant(const matrix &A) {
+	int m = A.size(), n = A.size() - 1, k = 1;
+	matrix B(n);
+	double d = 0;
+	if (m < 0) cout << "Определитель вычислить невозможно!";
+	if (m == 1) {
+		d = A[0][0];
+		return d;
+	}
+	if (m == 2) {
+		d = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+		return d;
+	}
+	if (m > 2) {
+		for (auto i = 0; i < m; i++) {
+			getMiniMatrix(A, B, i, 0, m);
+			d += k * A[i][0] * determinant(B);
+			k = -k;
+		}
+		return d;
+	}
+}
+
+matrix matrixMultiplication(const matrix& A, const matrix& B) {
+	int n = A.size();
+	matrix C(n);
+	for (auto i = 0; i < n; i++) {
+		for (auto j = 0; j < n; j++) {
+			C[i].push_back(0);
+			for (auto k = 0; k < n; k++) {
+				C[i][j] += A[i][k] * B[k][j];
+			}
+		}
+	}
+	return C;
+}
+
+matrix matrixCombination(const matrix &A, const matrix &B) {
 	int n = A.size();
 	matrix C(n);
 	for (auto i = 0; i < n; i++) {
@@ -68,7 +121,7 @@ matrix matrixCombination(const matrix& A, const matrix& B) {
 	return C;
 }
 
-matrix matrixCombinationOnNumber(const matrix& A, double X) {
+matrix matrixCombinationOnNumber(const matrix &A, double X) {
 	int n = A.size();
 	matrix C(n);
 	for (auto i = 0; i < n; i++) {
@@ -79,7 +132,7 @@ matrix matrixCombinationOnNumber(const matrix& A, double X) {
 	return C;
 }
 
-vec vectorCombination(double a, const vec& U, double b, const vec& V) // Сложение/Вычитание векторов
+vec vectorCombination(double a, const vec &U, double b, const vec &V) // Сложение/Вычитание векторов
 {
 	int n = U.size();
 	vec C(n);
@@ -89,12 +142,12 @@ vec vectorCombination(double a, const vec& U, double b, const vec& V) // Сложени
 	return C;
 }
 
-double innerProduct(const vec& U, const vec& V) // Скалярное произведение
+double innerProduct(const vec &U, const vec &V) // Скалярное произведение
 {
 	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
 }
 
-vec matrixMultiplicationByVector(const matrix& A, const vec& V) // Умножение матрицы на вектор
+vec matrixMultiplicationByVector(const matrix &A, const vec &V) // Умножение матрицы на вектор
 {
 	int n = A.size();
 	vec C(n);
@@ -104,12 +157,12 @@ vec matrixMultiplicationByVector(const matrix& A, const vec& V) // Умножение мат
 	return C;
 }
 
-double vectorNorm(const vec& V) // Преобразование для проверки
+double vectorNorm(const vec &V) // Преобразование для проверки
 {
 	return sqrt(innerProduct(V, V));
 }
 
-vec conjugateGradientSolver(const matrix& A, const vec& V) {
+vec conjugateGradientSolver(const matrix &A, const vec &V) {
 	int n = A.size();
 	vec X(n, 0.0); // Входной вектор x_0 может быть приблизительным начальным решением или 0. Я взял 0.
 		
@@ -140,29 +193,40 @@ int main() {
 	//AX = b
 	srand(time(NULL));
 	
-	matrix A;
-	randomAddMatrix(A, SIZE);
-	printMatrix(A);
-	matrix A_T = transposeMatrix(A);
-	printMatrix(A_T);
-	matrix C = matrixCombination(A, A_T);
-	printMatrix(C);
-	matrix CC = matrixCombinationOnNumber(C, 0.5);
-	CC = { {7, 4}, {4, 3} }; // Для примера из вики
-	cout << "A:" << endl;
-	printMatrix(CC);
+	matrix Ab;
+	randomAddMatrix(Ab, SIZE); // Произвольная матрица B
+	while (!determinant(Ab)) // Проверка вырожденности матрицы B
+	{
+		cout << "GG" << endl;
+		matrix AbNew;
+		randomAddMatrix(AbNew, SIZE);
+		Ab = AbNew;
+	}
 	
-	vec B;
+	matrix Ab_t = transposeMatrix(Ab); // Транспонированная матрица B
+
+	matrix AbAb_t = matrixMultiplication(Ab, Ab_t); // Положительно определенная матрица B*B'
+
+	// А = (B + B') / 2, тогда это формула не нужная ?
+	matrix AbplusAb_t = matrixCombination(Ab, Ab_t); //B + B'
+	matrix A = matrixCombinationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, симметричная и положительная матрица
+
+	A = AbAb_t;
+	//A = { {2, 5}, {5, 13} }; // Для примера из вики
+	cout << "A:" << endl;
+	printMatrix(A);
+
+	vec B; // Вектор B
 	randomAddVector(B, SIZE);
-	B = { 8, 1 }; // Для примера из вики
+	//B = { 8, 5 }; // Для примера из вики
 	cout << "B:" << endl;
 	printVector(B);
 
-	vec X = conjugateGradientSolver(CC, B);
+	vec X = conjugateGradientSolver(A, B); // Метод сопряженных градиентов
 	cout << "X:" << endl;
 	printVector(X);
 
-	vec Check = matrixMultiplicationByVector(CC, X);
+	vec Check = matrixMultiplicationByVector(A, X); // Проверяем результат
 	cout << "Check:" << endl;
 	printVector(Check);
 

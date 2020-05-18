@@ -6,7 +6,7 @@
 using namespace std;
 
 const double NEARZERO = 1.0e-10; // Интерпретация нуля, но не ноль
-const int SIZE = 10;
+const int SIZE = 100;
 const int RAND = 10;
 
 using vec = vector<double>; // Вектор
@@ -202,14 +202,14 @@ int main() {
 	matrix Ab;
 	randomAddMatrix(Ab, SIZE); // Произвольная матрица B
 	cout << "Random Ab complete: " << clock() / 1000.0 << "ms" << endl;
-	while (!determinant(Ab)) // Проверка вырожденности матрицы B
-	{
-		cout << "GG" << endl;
-		matrix AbNew;
-		randomAddMatrix(AbNew, SIZE);
-		Ab = AbNew;
-	}
-	cout << "Determinent complete: " << clock() / 1000.0 << "ms" << endl;
+	//while (!determinant(Ab)) // Проверка вырожденности матрицы B
+	//{
+	//	cout << "GG" << endl;
+	//	matrix AbNew;
+	//	randomAddMatrix(AbNew, SIZE);
+	//	Ab = AbNew;
+	//}
+	//cout << "Determinant complete: " << clock() / 1000.0 << "ms" << endl;
 	
 	matrix Ab_t = transposeMatrix(Ab); // Транспонированная матрица B
 	cout << "Transpose complete: " << clock() / 1000.0 << "ms" << endl;
@@ -225,26 +225,26 @@ int main() {
 
 	matrix A = AbAb_t;
 	//A = { {2, 5}, {5, 13} }; // Для примера из вики
-	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
-	cout << "A:" << endl;
-	printMatrix(A);
+	cout << "A: " << clock() / 1000.0 << "ms" << endl;
+	//cout << "A:" << endl;
+	//printMatrix(A);
 
 	vec B; // Вектор B
 	randomAddVector(B, SIZE);
 	//B = { 8, 5 }; // Для примера из вики
-	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
-	cout << "B:" << endl;
-	printVector(B);
+	cout << "B: " << clock() / 1000.0 << "ms" << endl;
+	//cout << "B:" << endl;
+	//printVector(B);
 
 	vec X = conjugateGradientSolver(A, B); // Метод сопряженных градиентов
-	cout << "Time: " << clock() / 1000.0 << "ms" << endl;
-	cout << "X:" << endl;
-	printVector(X);
+	cout << "X: " << clock() / 1000.0 << "ms" << endl;
+	//cout << "X:" << endl;
+	//printVector(X);
 
 	vec Check = matrixMultiplicationByVector(A, X); // Проверяем результат
-	cout << "Time:" << clock() / 1000.0 << "ms" << endl;
-	cout << "Check:" << endl;
-	printVector(Check);
+	cout << "Check:" << clock() / 1000.0 << "ms" << endl;
+	//cout << "Check:" << endl;
+	//printVector(Check);
 
 	return 0;
 }

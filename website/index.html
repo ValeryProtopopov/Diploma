@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Анализ эффективности WebAssembly (WASM)</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="css/style.css">
+	<script type="text/javascript" src="src/script.js"></script>
+</head>
+<body>    
+	<h1>Анализ эффективности WebAssembly (WASM)</h1>
+    <form>
+    	<p>
+	    	1. Число Фибоначчи: <br>
+	    	Введите число:
+	    	<input type="text" name="text_k" value="1"> <br>
+	 		<input type="button" name="Run" value="Запуск" onclick="fib(this.form.text_k.value)">
+	 		<input type="reset" name="reset" value="Очистить"></script> <br>
+	 		Ответ:
+	 		<output name="result">0</output>
+    	</p>
+
+    	<div>
+    		Время выполнения:
+    		<output name="timer">0</output>
+    	</div>
+    </form>
+    <input type="button" onclick="fib(1000)" value="Выполнить!">
+
+</body>
+</html>

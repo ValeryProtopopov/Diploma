@@ -5,7 +5,7 @@
 #include <algorithm>
 using namespace std;
 
-const double NEARZERO = 1.0e-10; // Интерпретация нуля, но не ноль
+const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
 const int SIZE = 100;
 const int RAND = 10;
 
@@ -127,7 +127,8 @@ matrix matrixCombination(const matrix &A, const matrix &B) {
 	return C;
 }
 
-matrix matrixMultiplicationOnNumber(const matrix &A, double X) {
+matrix matrixMultiplicationOnNumber(const matrix &A, double X)  // Умножение матрицы на число
+{
 	int n = A.size();
 	matrix C(n);
 	for (auto i = 0; i < n; i++) {
@@ -138,12 +139,12 @@ matrix matrixMultiplicationOnNumber(const matrix &A, double X) {
 	return C;
 }
 
-vec vectorCombination(double a, const vec &U, double b, const vec &V) // Сложение/Вычитание векторов
+vec vectorCombination(const vec &U, double alphaBeta, const vec &V) // Сложение/Вычитание векторов
 {
 	int n = U.size();
 	vec C(n);
 	for (auto j = 0; j < n; j++) {
-		C[j] = a * U[j] + b * V[j];
+		C[j] = U[j] + alphaBeta * V[j];
 	}
 	return C;
 }
@@ -163,9 +164,20 @@ vec matrixMultiplicationByVector(const matrix &A, const vec &V) // Умножение мат
 	return C;
 }
 
-double vectorNorm(const vec &V) // Преобразование для проверки
+double vectorNorm(const vec &V) // Норма вектора
 {
 	return sqrt(innerProduct(V, V));
+}
+
+double vectorNorm2(const vec& V) // Норма вектора
+{
+	int n = V.size();
+	double max = 0;
+	for (auto i = 0; i < n; i++) {
+		if (abs(V[i]) > max)
+			max = abs(V[i]);
+	}
+	return max;
 }
 
 vec conjugateGradientSolver(const matrix &A, const vec &V) {
@@ -175,20 +187,24 @@ vec conjugateGradientSolver(const matrix &A, const vec &V) {
 	vec R = V;
 	vec P = R;
 	int k = 0;
-
+	double norma = 0;
+	n *= 10;
 	while (k < n) {
 		vec RSold = R;
 		vec AP = matrixMultiplicationByVector(A, P);
 
 		double alpha = innerProduct(R, R) / max(innerProduct(P, AP), NEARZERO);
-		X = vectorCombination(1.0, X, alpha, P);
-		R = vectorCombination(1.0, R, -alpha, AP);
+		X = vectorCombination(X, alpha, P);
+		R = vectorCombination(R, -alpha, AP);
 
-		if (vectorNorm(R) < NEARZERO) 
+		norma = vectorNorm2(R);
+		if (norma < NEARZERO) {
+			cout << "Norma: " << norma << " count: " << k << endl;
 			break;
+		}
 
 		double beta = innerProduct(R, R) / max(innerProduct(RSold, RSold), NEARZERO);
-		P = vectorCombination(1.0, R, beta, P);
+		P = vectorCombination(R, beta, P);
 
 		k++;
 	}

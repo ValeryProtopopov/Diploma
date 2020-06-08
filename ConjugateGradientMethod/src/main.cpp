@@ -1,114 +1,94 @@
-#include <iostream>
-#include <vector>
-#include <numeric>
-#include <ctime>
-#include <algorithm>
-using namespace std;
+#include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
 
 const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
-const int SIZE = 100;
+const int SIZE = 10;
 const int RAND = 10;
 
-using vec = vector<double>; // Вектор
-using matrix = vector<vec>; // Матрица
+double* Vec = NULL;
+double** Matrix = NULL;
 
-void randomAddVector(vec &V, int N) {
+void randomAddVector(double V[], int N) {
 	for (auto i = 0; i < N; i++) {
-		V.push_back(rand() % RAND);
+		V[i] = rand() % RAND + 1.0;
 	}
 }
 
-void randomAddMatrix(matrix &A, int N) {
+void randomAddMatrix(double *A[], int N) {
 	for (auto i = 0; i < N; i++) {
-		vector<double> v1;
-		randomAddVector(v1, N);
-		A.push_back(v1);
+		for (auto j = 0; j < N; j++) {
+			A[i][j] = rand() % RAND + 1.0;
+		}
 	}
 }
 
-void printVector(const vec &V) {
-	int n = V.size();
-	for (auto i = 0; i < n; i++) {
+void printVector(double V[], int N) {
+	for (auto i = 0; i < N; i++) {
 		double x = V[i];
-		if (abs(x) < NEARZERO) 
+		if (fabs(x) < NEARZERO)
 			x = 0.0;
-		cout << x << " ";
+		printf("%f ", x);
 	}
-	cout << endl << endl;
+	printf("\n\n");
 }
 
-void printMatrix(const matrix &A) {
-	int n = A.size();
-	for (auto i = 0; i < n; i++) {
-		for (auto j = 0; j < n; j++) {
+void printMatrix(double* A[], int N) {
+	for (auto i = 0; i < N; i++) {
+		for (auto j = 0; j < N; j++) {
 			double x = A[i][j];
-			if (abs(x) < NEARZERO)
+			if (fabs(x) < NEARZERO)
 				x = 0.0;
-			cout << x << " ";
+			printf("%f ", x);
 		}
-		cout << endl;
+		printf("\n");
 	}
-	cout << endl;
+	printf("\n");
 }
 
-matrix transposeMatrix(const matrix &A) {
-	int n = A.size();
-	matrix A_T = A;
+void Init() {
+	Vec = (double*)malloc(SIZE * sizeof(double));
+		
+	Matrix = (double**)malloc(SIZE * sizeof(double**));
+	for (auto i = 0; i < SIZE; i++) {
+		Matrix[i] = (double *)malloc((SIZE) * sizeof(double));
+	}
+}
+
+void Clear() {
+	free(Vec);
+	for (auto i = 0; i < SIZE; i++) {
+		free(Matrix[i]);
+	}
+	free(Matrix);
+}
+
+double **transposeMatrix(double* A[], int N) {
+	double **C = (double**)malloc(N * sizeof(double**));
+	for (auto i = 0; i < N; i++) {
+		C[i] = (double*)malloc((N) * sizeof(double));
+	}
 	double temp;
-	for (auto i = 0; i < n; i++) {
-		for (auto j = 0; j < n; j++) {
-			A_T[i][j] = A[j][i];
+	for (auto i = 0; i < N; i++) {
+		for (auto j = 0; j < N; j++) {
+			C[i][j] = A[j][i];
 		}
 	}
-	return A_T;
+	return C;
 }
 
-void getMiniMatrix(const matrix &A, matrix &B, int i, int j, int m) {
-	int di, dj;
-	di = 0;
-	for (auto ki = 0; ki < m - 1; ki++) {
-		if (ki == i) 
-			di = 1;
-		dj = 0;
-		for (auto kj = 0; kj < m - 1; kj++) {
-			if (kj == j) 
-				dj = 1;
-			B[ki].push_back(0);
-			B[ki][kj] = (A[ki + di][kj + dj]);
-		}
+double **matrixMultiplication(double* A[], double* B[], int N) {
+	double** C = (double**)malloc(N * sizeof(double**));
+	for (auto i = 0; i < N; i++) {
+		C[i] = (double*)malloc((N) * sizeof(double));
 	}
-}
-
-double determinant(const matrix &A) {
-	int m = A.size(), n = A.size() - 1, k = 1;
-	matrix B(n);
-	double d = 0;
-	if (m < 0) cout << "Определитель вычислить невозможно!";
-	if (m == 1) {
-		d = A[0][0];
-		return d;
-	}
-	if (m == 2) {
-		d = A[0][0] * A[1][1] - A[0][1] * A[1][0];
-		return d;
-	}
-	if (m > 2) {
-		for (auto i = 0; i < m; i++) {
-			getMiniMatrix(A, B, i, 0, m);
-			d += k * A[i][0] * determinant(B);
-			k = -k;
-		}
-		return d;
-	}
-}
-
-matrix matrixMultiplication(const matrix& A, const matrix& B) {
-	int n = A.size();
-	matrix C(n);
-	for (auto i = 0; i < n; i++) {
-		for (auto j = 0; j < n; j++) {
-			C[i].push_back(0);
-			for (auto k = 0; k < n; k++) {
+	for (auto i = 0; i < N; i++) {
+		for (auto j = 0; j < N; j++) {
+			C[i][j] = 0;
+			for (auto k = 0; k < N; k++) {
 				C[i][j] += A[i][k] * B[k][j];
 			}
 		}
@@ -116,161 +96,122 @@ matrix matrixMultiplication(const matrix& A, const matrix& B) {
 	return C;
 }
 
-matrix matrixCombination(const matrix &A, const matrix &B) {
-	int n = A.size();
-	matrix C(n);
-	for (auto i = 0; i < n; i++) {
-		for (auto j = 0; j < n; j++) {
-			C[i].push_back(A[i][j] + B[i][j]);
+double **matrixCombination(double* A[], double* B[], int N) {
+	double** C = (double**)malloc(N * sizeof(double**));
+	for (auto i = 0; i < N; i++) {
+		C[i] = (double*)malloc((N) * sizeof(double));
+	}
+	for (auto i = 0; i < N; i++) {
+		for (auto j = 0; j < N; j++) {
+			C[i][j] = A[i][j] + B[i][j];
 		}
 	}
 	return C;
 }
 
-matrix matrixMultiplicationOnNumber(const matrix &A, double X)  // Умножение матрицы на число
+double innerProduct(double U[], double V[]) // Скалярное произведение
 {
-	int n = A.size();
-	matrix C(n);
-	for (auto i = 0; i < n; i++) {
-		for (auto j = 0; j < n; j++) {
-			C[i].push_back(A[i][j] * X);
-		}
-	}
-	return C;
-}
-
-vec vectorCombination(const vec &U, double alphaBeta, const vec &V) // Сложение/Вычитание векторов
-{
-	int n = U.size();
-	vec C(n);
-	for (auto j = 0; j < n; j++) {
-		C[j] = U[j] + alphaBeta * V[j];
-	}
-	return C;
-}
-
-double innerProduct(const vec& U, const vec& V) // Скалярное произведение
-{
-	int n = U.size();
 	double result = 0;
-	for (auto i = 0; i < n; i++) {
-		result += U[i] + V[i];
+	for (auto i = 0; i < SIZE; i++) {
+		result += U[i] * V[i];
 	}
-	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
+	return result;
 }
 
-//double innerProduct(const vec &U, const vec &V) // Скалярное произведение
-//{
-//	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
-//}
-
-vec matrixMultiplicationByVector(const matrix &A, const vec &V) // Умножение матрицы на вектор
+double *matrixMultiplicationByVector(double *A[], double V[]) // Умножение матрицы на вектор
 {
-	int n = A.size();
-	vec C(n);
-	for (auto i = 0; i < n; i++) {
+	double* C = (double*)malloc(SIZE * sizeof(double));
+	for (auto i = 0; i < SIZE; i++) {
 		C[i] = innerProduct(A[i], V);
 	}
 	return C;
 }
 
-double vectorNorm(const vec &V) // Норма вектора
+double *vectorCombination(double U[], double alphaBeta, double V[]) // Сложение/Вычитание векторов
 {
-	return sqrt(innerProduct(V, V));
+	double* C = (double*)malloc(SIZE * sizeof(double));
+	for (auto i = 0; i < SIZE; i++) {
+		C[i] = U[i] + alphaBeta * V[i];
+	}
+	return C;
 }
 
-double vectorNorm2(const vec& V) // Норма вектора
+double vectorNorm(const double V[]) // Норма вектора
 {
-	int n = V.size();
 	double max = 0;
-	for (auto i = 0; i < n; i++) {
-		if (abs(V[i]) > max)
-			max = abs(V[i]);
+	for (auto i = 0; i < SIZE; i++) {
+		if (fabs(V[i]) > max)
+			max = fabs(V[i]);
 	}
 	return max;
 }
 
-vec conjugateGradientSolver(const matrix &A, const vec &V) {
-	int n = A.size();
-	vec X(n, 0.0); // Входной вектор x_0 может быть приблизительным начальным решением или 0. Я взял 0.
-		
-	vec R = V;
-	vec P = R;
+double *conjugateGradientSolver(double* A[], double B[]) {
+	double *X = (double*)malloc(SIZE * sizeof(double));
+	for (auto i = 0; i < SIZE; i++) {
+		X[i] = 0.0;
+	}
+	double* R = B;
+	double* P = R;
+	double norma = 0.f;
 	int k = 0;
-	double norma = 0;
-	n *= 10;
-	while (k < n) {
-		vec RSold = R;
-		vec AP = matrixMultiplicationByVector(A, P);
-
-		double alpha = innerProduct(R, R) / max(innerProduct(P, AP), NEARZERO);
+	int N = SIZE * 10;
+	while (k < N)
+	{
+		double* RSold = R;
+		double* AP = matrixMultiplicationByVector(A, P);
+		
+		double alpha = innerProduct(R, R) / fmax(innerProduct(P, AP), NEARZERO);
+		
 		X = vectorCombination(X, alpha, P);
 		R = vectorCombination(R, -alpha, AP);
 
-		norma = vectorNorm2(R);
+		norma = vectorNorm(R);
 		if (norma < NEARZERO) {
-			cout << "Norma: " << norma << " count: " << k << endl;
+			printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
 			break;
 		}
-
-		double beta = innerProduct(R, R) / max(innerProduct(RSold, RSold), NEARZERO);
+		double beta = innerProduct(R, R) / fmax(innerProduct(RSold, RSold), NEARZERO);
 		P = vectorCombination(R, beta, P);
-
 		k++;
 	}
 	return X;
 }
 
 int main() {
-	//AX = b
 	srand(time(NULL));
-	
-	matrix Ab;
-	randomAddMatrix(Ab, SIZE); // Произвольная матрица B
-	cout << "Random Ab complete: " << clock() / 1000.0 << "ms" << endl;
-	//while (!determinant(Ab)) // Проверка вырожденности матрицы B
-	//{
-	//	cout << "GG" << endl;
-	//	matrix AbNew;
-	//	randomAddMatrix(AbNew, SIZE);
-	//	Ab = AbNew;
-	//}
-	//cout << "Determinant complete: " << clock() / 1000.0 << "ms" << endl;
-	
-	matrix Ab_t = transposeMatrix(Ab); // Транспонированная матрица B
-	cout << "Transpose complete: " << clock() / 1000.0 << "ms" << endl;
+	Init();
+	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
 
-	matrix AbAb_t = matrixMultiplication(Ab, Ab_t); // Положительно определенная матрица B*B'
-	cout << "Matrix mulyiplication complete: " << clock() / 1000.0 << "ms" << endl;
+	randomAddMatrix(Matrix, SIZE); // Произвольная матрица
+	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printMatrix(Matrix, SIZE);
 
-	// А = (B + B') / 2, тогда это формула не нужная ?
-	//matrix AbplusAb_t = matrixCombination(Ab, Ab_t); //B + B'
-	//cout << "Matrix plus complete:" << clock() / 1000.0 << "ms" << endl;
-	//matrix A = matrixMultiplicationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, симметричная и положительная матрица
-	//cout << "Matrix multiplication on number complete:" << clock() / 1000.0 << "ms" << endl;
+	double** Ab_t = NULL;
+	Ab_t = transposeMatrix(Matrix, SIZE); // Транспонированная матрица
+	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printMatrix(Ab_t, SIZE);
 
-	matrix A = AbAb_t;
-	//A = { {2, 5}, {5, 13} }; // Для примера из вики
-	cout << "A: " << clock() / 1000.0 << "ms" << endl;
-	//cout << "A:" << endl;
-	//printMatrix(A);
+	double** AbAb_t = NULL;
+	AbAb_t = matrixMultiplication(Matrix, Ab_t, SIZE); // Положительно определенная матрица B*B'
+	printf("Matrix mulyiplication complete: %.3f ms\n", clock() / 1000.0);
+	//printMatrix(AbAb_t, SIZE);
 
-	vec B; // Вектор B
-	randomAddVector(B, SIZE);
-	//B = { 8, 5 }; // Для примера из вики
-	cout << "B: " << clock() / 1000.0 << "ms" << endl;
-	cout << "B:" << endl;
-	printVector(B);
+	double** A = AbAb_t; // Матрица А
 
-	vec X = conjugateGradientSolver(A, B); // Метод сопряженных градиентов
-	cout << "X: " << clock() / 1000.0 << "ms" << endl;
-	//cout << "X:" << endl;
-	//printVector(X);
+	randomAddVector(Vec, SIZE); // Произвольный вектор
+	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
+	printVector(Vec, SIZE);
 
-	vec Check = matrixMultiplicationByVector(A, X); // Проверяем результат
-	cout << "Check:" << clock() / 1000.0 << "ms" << endl;
-	cout << "Check:" << endl;
-	printVector(Check);
+	double* X = conjugateGradientSolver(A, Vec);
+	printf("X time: %.3f ms\n", clock() / 1000.0);
+	printVector(X, SIZE);
 
-	return 0;
+	double* Check = matrixMultiplicationByVector(A, X);
+	printf("Check time: %.3f ms\n", clock() / 1000.0);
+	printVector(Check, SIZE);
+
+	Clear();
+	system("pause");
+	return 0; 
 }

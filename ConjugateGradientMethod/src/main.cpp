@@ -149,10 +149,20 @@ vec vectorCombination(const vec &U, double alphaBeta, const vec &V) // —ложение/
 	return C;
 }
 
-double innerProduct(const vec &U, const vec &V) // —кал€рное произведение
+double innerProduct(const vec& U, const vec& V) // —кал€рное произведение
 {
+	int n = U.size();
+	double result = 0;
+	for (auto i = 0; i < n; i++) {
+		result += U[i] + V[i];
+	}
 	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
 }
+
+//double innerProduct(const vec &U, const vec &V) // —кал€рное произведение
+//{
+//	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
+//}
 
 vec matrixMultiplicationByVector(const matrix &A, const vec &V) // ”множение матрицы на вектор
 {
@@ -249,8 +259,8 @@ int main() {
 	randomAddVector(B, SIZE);
 	//B = { 8, 5 }; // ƒл€ примера из вики
 	cout << "B: " << clock() / 1000.0 << "ms" << endl;
-	//cout << "B:" << endl;
-	//printVector(B);
+	cout << "B:" << endl;
+	printVector(B);
 
 	vec X = conjugateGradientSolver(A, B); // ћетод сопр€женных градиентов
 	cout << "X: " << clock() / 1000.0 << "ms" << endl;
@@ -259,8 +269,8 @@ int main() {
 
 	vec Check = matrixMultiplicationByVector(A, X); // ѕровер€ем результат
 	cout << "Check:" << clock() / 1000.0 << "ms" << endl;
-	//cout << "Check:" << endl;
-	//printVector(Check);
+	cout << "Check:" << endl;
+	printVector(Check);
 
 	return 0;
 }

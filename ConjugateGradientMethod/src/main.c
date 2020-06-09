@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include <string.h>
 
 const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
 const int SIZE = 10;
@@ -12,16 +11,16 @@ const int RAND = 10;
 double* Vec = NULL;
 double** Matrix = NULL;
 
-void randomAddVector(double *V) {
+void randomAddVector(double *V) { // Сделать вещ, -10 : +10
 	for (auto i = 0; i < SIZE; i++) {
-		V[i] = rand() % RAND + 1.0;
+		V[i] = (2.0 * rand() / RAND_MAX - 1.0) * RAND;
 	}
 }
 
 void randomAddMatrix(double **A) {
 	for (auto i = 0; i < SIZE; i++) {
 		for (auto j = 0; j < SIZE; j++) {
-			A[i][j] = rand() % RAND + 1.0;
+			A[i][j] = (2.0 * rand() / RAND_MAX - 1.0) * RAND;
 		}
 	}
 }
@@ -31,9 +30,9 @@ void printVector(double *V) {
 		double x = V[i];
 		if (fabs(x) < NEARZERO)
 			x = 0.0;
-		printf("%f ", x);
+		//printf("%f ", x);
 	}
-	printf("\n\n");
+	//printf("\n\n");
 }
 
 void printMatrix(double **A) {
@@ -42,11 +41,11 @@ void printMatrix(double **A) {
 			double x = A[i][j];
 			if (fabs(x) < NEARZERO)
 				x = 0.0;
-			printf("%f ", x);
+			//printf("%f ", x);
 		}
-		printf("\n");
+		//printf("\n");
 	}
-	printf("\n\n");
+	//printf("\n\n");
 }
 
 void init() {
@@ -158,11 +157,21 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 		X = vectorCombination(X, alpha, P);
 		R = vectorCombination(R, -alpha, AP);
 
-		normaOld = norma;
-		norma = vectorNorm(R);
-		if ((normaOld == 0) || (norma > normaOld) || ((1 - norma / normaOld) < NEARZERO)) {
-			printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
-			break;
+		if (k == 0) {
+			norma = vectorNorm(R);
+			if (norma < NEARZERO) {
+				//printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
+				break;
+			}
+		}
+		else
+		{
+			normaOld = norma;
+			norma = vectorNorm(R);
+			if ((normaOld == 0) || /*(norma > normaOld) ||*/ (fabs(1 - norma / normaOld) < NEARZERO)) {
+				//printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
+				break;
+			}
 		}
 		double beta = innerProduct(R, R) / fmax(innerProduct(RSold, RSold), NEARZERO);
 		P = vectorCombination(R, beta, P);
@@ -174,34 +183,34 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 int main() {
 	srand(time(NULL));
 	init();
-	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
 
 	randomAddMatrix(Matrix); // Произвольная матрица
-	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Matrix, SIZE);
 
 	double **Ab_t = NULL;
 	Ab_t = transposedMatrix(Matrix); // Транспонированная матрица
-	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Ab_t, SIZE);
 
 	double **AbAb_t = NULL;
 	AbAb_t = matrixMultiplication(Matrix, Ab_t); // Положительно определенная матрица B*B'
-	printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(AbAb_t, SIZE);
 
 	double **A = AbAb_t; // Матрица А
 
 	randomAddVector(Vec); // Произвольный вектор
-	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
 	printVector(Vec);
 
 	double *X = conjugateGradientSolver(A, Vec);
-	printf("X time: %.3f ms\n", clock() / 1000.0);
+	//printf("X time: %.3f ms\n", clock() / 1000.0);
 	printVector(X);
 
 	double *Check = matrixMultiplicationByVector(A, X);
-	printf("Check time: %.3f ms\n", clock() / 1000.0);
+	//printf("Check time: %.3f ms\n", clock() / 1000.0);
 	printVector(Check);
 
 	clear();

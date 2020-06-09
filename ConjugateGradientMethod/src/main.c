@@ -12,22 +12,22 @@ const int RAND = 10;
 double* Vec = NULL;
 double** Matrix = NULL;
 
-void randomAddVector(double V[], int N) {
-	for (auto i = 0; i < N; i++) {
+void randomAddVector(double *V) {
+	for (auto i = 0; i < SIZE; i++) {
 		V[i] = rand() % RAND + 1.0;
 	}
 }
 
-void randomAddMatrix(double *A[], int N) {
-	for (auto i = 0; i < N; i++) {
-		for (auto j = 0; j < N; j++) {
+void randomAddMatrix(double **A) {
+	for (auto i = 0; i < SIZE; i++) {
+		for (auto j = 0; j < SIZE; j++) {
 			A[i][j] = rand() % RAND + 1.0;
 		}
 	}
 }
 
-void printVector(double V[], int N) {
-	for (auto i = 0; i < N; i++) {
+void printVector(double *V) {
+	for (auto i = 0; i < SIZE; i++) {
 		double x = V[i];
 		if (fabs(x) < NEARZERO)
 			x = 0.0;
@@ -36,9 +36,9 @@ void printVector(double V[], int N) {
 	printf("\n\n");
 }
 
-void printMatrix(double* A[], int N) {
-	for (auto i = 0; i < N; i++) {
-		for (auto j = 0; j < N; j++) {
+void printMatrix(double **A) {
+	for (auto i = 0; i < SIZE; i++) {
+		for (auto j = 0; j < SIZE; j++) {
 			double x = A[i][j];
 			if (fabs(x) < NEARZERO)
 				x = 0.0;
@@ -46,19 +46,18 @@ void printMatrix(double* A[], int N) {
 		}
 		printf("\n");
 	}
-	printf("\n");
+	printf("\n\n");
 }
 
-void Init() {
+void init() {
 	Vec = (double*)malloc(SIZE * sizeof(double));
-		
-	Matrix = (double**)malloc(SIZE * sizeof(double**));
+	Matrix = (double**)malloc(SIZE * sizeof(double*));
 	for (auto i = 0; i < SIZE; i++) {
-		Matrix[i] = (double *)malloc((SIZE) * sizeof(double));
+		Matrix[i] = (double *)malloc(SIZE * sizeof(double));
 	}
 }
 
-void Clear() {
+void clear() {
 	free(Vec);
 	for (auto i = 0; i < SIZE; i++) {
 		free(Matrix[i]);
@@ -66,29 +65,24 @@ void Clear() {
 	free(Matrix);
 }
 
-double **transposeMatrix(double* A[], int N) {
-	double **C = (double**)malloc(N * sizeof(double**));
-	for (auto i = 0; i < N; i++) {
-		C[i] = (double*)malloc((N) * sizeof(double));
-	}
-	double temp;
-	for (auto i = 0; i < N; i++) {
-		for (auto j = 0; j < N; j++) {
+double **transposedMatrix(double **A) {
+	double **C = (double**)malloc(SIZE * sizeof(double*));
+	for (auto i = 0; i < SIZE; i++) {
+		C[i] = (double*)malloc(SIZE * sizeof(double));
+		for (auto j = 0; j < SIZE; j++) {
 			C[i][j] = A[j][i];
 		}
 	}
 	return C;
 }
 
-double **matrixMultiplication(double* A[], double* B[], int N) {
-	double** C = (double**)malloc(N * sizeof(double**));
-	for (auto i = 0; i < N; i++) {
-		C[i] = (double*)malloc((N) * sizeof(double));
-	}
-	for (auto i = 0; i < N; i++) {
-		for (auto j = 0; j < N; j++) {
+double **matrixMultiplication(double* A[], double* B[]) {
+	double** C = (double**)malloc(SIZE * sizeof(double*));
+	for (auto i = 0; i < SIZE; i++) {
+		C[i] = (double*)malloc(SIZE * sizeof(double));
+		for (auto j = 0; j < SIZE; j++) {
 			C[i][j] = 0;
-			for (auto k = 0; k < N; k++) {
+			for (auto k = 0; k < SIZE; k++) {
 				C[i][j] += A[i][k] * B[k][j];
 			}
 		}
@@ -96,13 +90,11 @@ double **matrixMultiplication(double* A[], double* B[], int N) {
 	return C;
 }
 
-double **matrixCombination(double* A[], double* B[], int N) {
-	double** C = (double**)malloc(N * sizeof(double**));
-	for (auto i = 0; i < N; i++) {
-		C[i] = (double*)malloc((N) * sizeof(double));
-	}
-	for (auto i = 0; i < N; i++) {
-		for (auto j = 0; j < N; j++) {
+double **matrixCombination(double **A, double **B) {
+	double** C = (double**)malloc(SIZE * sizeof(double*));
+	for (auto i = 0; i < SIZE; i++) {
+		C[i] = (double*)malloc(SIZE * sizeof(double));
+		for (auto j = 0; j < SIZE; j++) {
 			C[i][j] = A[i][j] + B[i][j];
 		}
 	}
@@ -153,10 +145,10 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 	}
 	double* R = B;
 	double* P = R;
-	double norma = 0.f;
+	double norma = 0.f, normaOld = 0.f;
 	int k = 0;
 	int N = SIZE * 10;
-	while (k < N)
+	while (1)
 	{
 		double* RSold = R;
 		double* AP = matrixMultiplicationByVector(A, P);
@@ -166,8 +158,9 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 		X = vectorCombination(X, alpha, P);
 		R = vectorCombination(R, -alpha, AP);
 
+		normaOld = norma;
 		norma = vectorNorm(R);
-		if (norma < NEARZERO) {
+		if ((normaOld == 0) || (norma > normaOld) || ((1 - norma / normaOld) < NEARZERO)) {
 			printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
 			break;
 		}
@@ -180,38 +173,38 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 
 int main() {
 	srand(time(NULL));
-	Init();
+	init();
 	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
 
-	randomAddMatrix(Matrix, SIZE); // Произвольная матрица
+	randomAddMatrix(Matrix); // Произвольная матрица
 	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Matrix, SIZE);
 
-	double** Ab_t = NULL;
-	Ab_t = transposeMatrix(Matrix, SIZE); // Транспонированная матрица
+	double **Ab_t = NULL;
+	Ab_t = transposedMatrix(Matrix); // Транспонированная матрица
 	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Ab_t, SIZE);
 
-	double** AbAb_t = NULL;
-	AbAb_t = matrixMultiplication(Matrix, Ab_t, SIZE); // Положительно определенная матрица B*B'
-	printf("Matrix mulyiplication complete: %.3f ms\n", clock() / 1000.0);
+	double **AbAb_t = NULL;
+	AbAb_t = matrixMultiplication(Matrix, Ab_t); // Положительно определенная матрица B*B'
+	printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(AbAb_t, SIZE);
 
-	double** A = AbAb_t; // Матрица А
+	double **A = AbAb_t; // Матрица А
 
-	randomAddVector(Vec, SIZE); // Произвольный вектор
+	randomAddVector(Vec); // Произвольный вектор
 	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
-	printVector(Vec, SIZE);
+	printVector(Vec);
 
-	double* X = conjugateGradientSolver(A, Vec);
+	double *X = conjugateGradientSolver(A, Vec);
 	printf("X time: %.3f ms\n", clock() / 1000.0);
-	printVector(X, SIZE);
+	printVector(X);
 
-	double* Check = matrixMultiplicationByVector(A, X);
+	double *Check = matrixMultiplicationByVector(A, X);
 	printf("Check time: %.3f ms\n", clock() / 1000.0);
-	printVector(Check, SIZE);
+	printVector(Check);
 
-	Clear();
+	clear();
 	system("pause");
 	return 0; 
 }

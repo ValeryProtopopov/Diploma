@@ -5,12 +5,12 @@
 #include <algorithm>
 using namespace std;
 
-const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
+const double NEARZERO = 1.0e-5; // РРЅС‚РµСЂРїСЂРµС‚Р°С†РёСЏ РЅСѓР»СЏ, РЅРѕ РЅРµ РЅРѕР»СЊ
 const int SIZE = 100;
 const int RAND = 10;
 
-using vec = vector<double>; // Вектор
-using matrix = vector<vec>; // Матрица
+using vec = vector<double>; // Р’РµРєС‚РѕСЂ
+using matrix = vector<vec>; // РњР°С‚СЂРёС†Р°
 
 
 
@@ -85,7 +85,7 @@ double determinant(const matrix& A) {
 	int m = A.size(), n = A.size() - 1, k = 1;
 	matrix B(n);
 	double d = 0;
-	if (m < 0) cout << "Определитель вычислить невозможно!";
+	if (m < 0) cout << "РћРїСЂРµРґРµР»РёС‚РµР»СЊ РІС‹С‡РёСЃР»РёС‚СЊ РЅРµРІРѕР·РјРѕР¶РЅРѕ!";
 	if (m == 1) {
 		d = A[0][0];
 		return d;
@@ -129,7 +129,7 @@ matrix matrixCombination(const matrix& A, const matrix& B) {
 	return C;
 }
 
-matrix matrixMultiplicationOnNumber(const matrix& A, double X)  // Умножение матрицы на число
+matrix matrixMultiplicationOnNumber(const matrix& A, double X)  // РЈРјРЅРѕР¶РµРЅРёРµ РјР°С‚СЂРёС†С‹ РЅР° С‡РёСЃР»Рѕ
 {
 	int n = A.size();
 	matrix C(n);
@@ -141,7 +141,7 @@ matrix matrixMultiplicationOnNumber(const matrix& A, double X)  // Умножение мат
 	return C;
 }
 
-vec vectorCombination(const vec& U, double alphaBeta, const vec& V) // Сложение/Вычитание векторов
+vec vectorCombination(const vec& U, double alphaBeta, const vec& V) // РЎР»РѕР¶РµРЅРёРµ/Р’С‹С‡РёС‚Р°РЅРёРµ РІРµРєС‚РѕСЂРѕРІ
 {
 	int n = U.size();
 	vec C(n);
@@ -151,7 +151,7 @@ vec vectorCombination(const vec& U, double alphaBeta, const vec& V) // Сложение/
 	return C;
 }
 
-double innerProduct(const vec& U, const vec& V) // Скалярное произведение
+double innerProduct(const vec& U, const vec& V) // РЎРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ
 {
 	int n = U.size();
 	double result = 0;
@@ -161,12 +161,12 @@ double innerProduct(const vec& U, const vec& V) // Скалярное произведение
 	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
 }
 
-//double innerProduct(const vec &U, const vec &V) // Скалярное произведение
+//double innerProduct(const vec &U, const vec &V) // РЎРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ
 //{
 //	return inner_product(U.begin(), U.end(), V.begin(), 0.0);
 //}
 
-vec matrixMultiplicationByVector(const matrix& A, const vec& V) // Умножение матрицы на вектор
+vec matrixMultiplicationByVector(const matrix& A, const vec& V) // РЈРјРЅРѕР¶РµРЅРёРµ РјР°С‚СЂРёС†С‹ РЅР° РІРµРєС‚РѕСЂ
 {
 	int n = A.size();
 	vec C(n);
@@ -176,12 +176,12 @@ vec matrixMultiplicationByVector(const matrix& A, const vec& V) // Умножение мат
 	return C;
 }
 
-double vectorNorm(const vec& V) // Норма вектора
+double vectorNorm(const vec& V) // РќРѕСЂРјР° РІРµРєС‚РѕСЂР°
 {
 	return sqrt(innerProduct(V, V));
 }
 
-double vectorNorm2(const vec& V) // Норма вектора
+double vectorNorm2(const vec& V) // РќРѕСЂРјР° РІРµРєС‚РѕСЂР°
 {
 	int n = V.size();
 	double max = 0;
@@ -194,7 +194,7 @@ double vectorNorm2(const vec& V) // Норма вектора
 
 vec conjugateGradientSolver(const matrix& A, const vec& V) {
 	int n = A.size();
-	vec X(n, 0.0); // Входной вектор x_0 может быть приблизительным начальным решением или 0. Я взял 0.
+	vec X(n, 0.0); // Р’С…РѕРґРЅРѕР№ РІРµРєС‚РѕСЂ x_0 РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРёР±Р»РёР·РёС‚РµР»СЊРЅС‹Рј РЅР°С‡Р°Р»СЊРЅС‹Рј СЂРµС€РµРЅРёРµРј РёР»Рё 0. РЇ РІР·СЏР» 0.
 
 	vec R = V;
 	vec P = R;
@@ -228,9 +228,9 @@ vec conjugateGradientSolver(const matrix& A, const vec& V) {
 //	srand(time(NULL));
 //
 //	matrix Ab;
-//	randomAddMatrix(Ab, SIZE); // Произвольная матрица B
+//	randomAddMatrix(Ab, SIZE); // РџСЂРѕРёР·РІРѕР»СЊРЅР°СЏ РјР°С‚СЂРёС†Р° B
 //	cout << "Random Ab complete: " << clock() / 1000.0 << "ms" << endl;
-//	//while (!determinant(Ab)) // Проверка вырожденности матрицы B
+//	//while (!determinant(Ab)) // РџСЂРѕРІРµСЂРєР° РІС‹СЂРѕР¶РґРµРЅРЅРѕСЃС‚Рё РјР°С‚СЂРёС†С‹ B
 //	//{
 //	//	cout << "GG" << endl;
 //	//	matrix AbNew;
@@ -239,37 +239,37 @@ vec conjugateGradientSolver(const matrix& A, const vec& V) {
 //	//}
 //	//cout << "Determinant complete: " << clock() / 1000.0 << "ms" << endl;
 //
-//	matrix Ab_t = transposeMatrix(Ab); // Транспонированная матрица B
+//	matrix Ab_t = transposeMatrix(Ab); // РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРЅР°СЏ РјР°С‚СЂРёС†Р° B
 //	cout << "Transpose complete: " << clock() / 1000.0 << "ms" << endl;
 //
-//	matrix AbAb_t = matrixMultiplication(Ab, Ab_t); // Положительно определенная матрица B*B'
+//	matrix AbAb_t = matrixMultiplication(Ab, Ab_t); // РџРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ РѕРїСЂРµРґРµР»РµРЅРЅР°СЏ РјР°С‚СЂРёС†Р° B*B'
 //	cout << "Matrix mulyiplication complete: " << clock() / 1000.0 << "ms" << endl;
 //
-//	// А = (B + B') / 2, тогда это формула не нужная ?
+//	// Рђ = (B + B') / 2, С‚РѕРіРґР° СЌС‚Рѕ С„РѕСЂРјСѓР»Р° РЅРµ РЅСѓР¶РЅР°СЏ ?
 //	//matrix AbplusAb_t = matrixCombination(Ab, Ab_t); //B + B'
 //	//cout << "Matrix plus complete:" << clock() / 1000.0 << "ms" << endl;
-//	//matrix A = matrixMultiplicationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, симметричная и положительная матрица
+//	//matrix A = matrixMultiplicationOnNumber(AbplusAb_t, 0.5); // (B + B') / 2, СЃРёРјРјРµС‚СЂРёС‡РЅР°СЏ Рё РїРѕР»РѕР¶РёС‚РµР»СЊРЅР°СЏ РјР°С‚СЂРёС†Р°
 //	//cout << "Matrix multiplication on number complete:" << clock() / 1000.0 << "ms" << endl;
 //
 //	matrix A = AbAb_t;
-//	//A = { {2, 5}, {5, 13} }; // Для примера из вики
+//	//A = { {2, 5}, {5, 13} }; // Р”Р»СЏ РїСЂРёРјРµСЂР° РёР· РІРёРєРё
 //	cout << "A: " << clock() / 1000.0 << "ms" << endl;
 //	//cout << "A:" << endl;
 //	//printMatrix(A);
 //
-//	vec B; // Вектор B
+//	vec B; // Р’РµРєС‚РѕСЂ B
 //	randomAddVector(B, SIZE);
-//	//B = { 8, 5 }; // Для примера из вики
+//	//B = { 8, 5 }; // Р”Р»СЏ РїСЂРёРјРµСЂР° РёР· РІРёРєРё
 //	cout << "B: " << clock() / 1000.0 << "ms" << endl;
 //	cout << "B:" << endl;
 //	printVector(B);
 //
-//	vec X = conjugateGradientSolver(A, B); // Метод сопряженных градиентов
+//	vec X = conjugateGradientSolver(A, B); // РњРµС‚РѕРґ СЃРѕРїСЂСЏР¶РµРЅРЅС‹С… РіСЂР°РґРёРµРЅС‚РѕРІ
 //	cout << "X: " << clock() / 1000.0 << "ms" << endl;
 //	//cout << "X:" << endl;
 //	//printVector(X);
 //
-//	vec Check = matrixMultiplicationByVector(A, X); // Проверяем результат
+//	vec Check = matrixMultiplicationByVector(A, X); // РџСЂРѕРІРµСЂСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚
 //	cout << "Check:" << clock() / 1000.0 << "ms" << endl;
 //	cout << "Check:" << endl;
 //	printVector(Check);

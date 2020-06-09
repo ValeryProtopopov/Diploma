@@ -5,7 +5,7 @@
 #include <time.h>
 #include <string.h>
 
-const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
+const double NEARZERO = 1.0e-5; // РРЅС‚РµСЂРїСЂРµС‚Р°С†РёСЏ РЅСѓР»СЏ, РЅРѕ РЅРµ РЅРѕР»СЊ
 const int SIZE = 10;
 const int RAND = 10;
 
@@ -109,7 +109,7 @@ double **matrixCombination(double* A[], double* B[], int N) {
 	return C;
 }
 
-double innerProduct(double U[], double V[]) // Скалярное произведение
+double innerProduct(double U[], double V[]) // РЎРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ
 {
 	double result = 0;
 	for (auto i = 0; i < SIZE; i++) {
@@ -118,7 +118,7 @@ double innerProduct(double U[], double V[]) // Скалярное произведение
 	return result;
 }
 
-double *matrixMultiplicationByVector(double *A[], double V[]) // Умножение матрицы на вектор
+double *matrixMultiplicationByVector(double *A[], double V[]) // РЈРјРЅРѕР¶РµРЅРёРµ РјР°С‚СЂРёС†С‹ РЅР° РІРµРєС‚РѕСЂ
 {
 	double* C = (double*)malloc(SIZE * sizeof(double));
 	for (auto i = 0; i < SIZE; i++) {
@@ -127,7 +127,7 @@ double *matrixMultiplicationByVector(double *A[], double V[]) // Умножение матри
 	return C;
 }
 
-double *vectorCombination(double U[], double alphaBeta, double V[]) // Сложение/Вычитание векторов
+double *vectorCombination(double U[], double alphaBeta, double V[]) // РЎР»РѕР¶РµРЅРёРµ/Р’С‹С‡РёС‚Р°РЅРёРµ РІРµРєС‚РѕСЂРѕРІ
 {
 	double* C = (double*)malloc(SIZE * sizeof(double));
 	for (auto i = 0; i < SIZE; i++) {
@@ -136,7 +136,7 @@ double *vectorCombination(double U[], double alphaBeta, double V[]) // Сложение/
 	return C;
 }
 
-double vectorNorm(const double V[]) // Норма вектора
+double vectorNorm(const double V[]) // РќРѕСЂРјР° РІРµРєС‚РѕСЂР°
 {
 	double max = 0;
 	for (auto i = 0; i < SIZE; i++) {
@@ -183,23 +183,23 @@ int main() {
 	Init();
 	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
 
-	randomAddMatrix(Matrix, SIZE); // Произвольная матрица
+	randomAddMatrix(Matrix, SIZE); // РџСЂРѕРёР·РІРѕР»СЊРЅР°СЏ РјР°С‚СЂРёС†Р°
 	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Matrix, SIZE);
 
 	double** Ab_t = NULL;
-	Ab_t = transposeMatrix(Matrix, SIZE); // Транспонированная матрица
+	Ab_t = transposeMatrix(Matrix, SIZE); // РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРЅР°СЏ РјР°С‚СЂРёС†Р°
 	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Ab_t, SIZE);
 
 	double** AbAb_t = NULL;
-	AbAb_t = matrixMultiplication(Matrix, Ab_t, SIZE); // Положительно определенная матрица B*B'
+	AbAb_t = matrixMultiplication(Matrix, Ab_t, SIZE); // РџРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ РѕРїСЂРµРґРµР»РµРЅРЅР°СЏ РјР°С‚СЂРёС†Р° B*B'
 	printf("Matrix mulyiplication complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(AbAb_t, SIZE);
 
-	double** A = AbAb_t; // Матрица А
+	double** A = AbAb_t; // РњР°С‚СЂРёС†Р° Рђ
 
-	randomAddVector(Vec, SIZE); // Произвольный вектор
+	randomAddVector(Vec, SIZE); // РџСЂРѕРёР·РІРѕР»СЊРЅС‹Р№ РІРµРєС‚РѕСЂ
 	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
 	printVector(Vec, SIZE);
 

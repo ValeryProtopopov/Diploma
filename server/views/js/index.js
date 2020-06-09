@@ -30,8 +30,8 @@ async function start() {
 			}
 			randomAddVector(Vec);
 			randomAddMatrix(Matrix);
-			var startTime = new Date().getTime();
+			var t0 = performance.now();
             console.log(obj.instance.exports.innerProduct(Vec, Vec));
-            var endTime = new Date().getTime();
-            console.log('Execution time: ' + (endTime - startTime)/1000.0 + " ms");
+            var t1 = performance.now();
+            console.log('Execution time: ' + (t1 - t0).toFixed(4) + " ms");
         });}

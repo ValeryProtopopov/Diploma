@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConjugateGradientMethod", "ConjugateGradientMethod.vcxproj", "{73DF34B4-A6B7-44E6-A153-29BD2603C95F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGenerator", "..\TestGenerator\TestGenerator.vcxproj", "{93E5B793-12DE-4E1F-8FA8-33A1917CC952}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{73DF34B4-A6B7-44E6-A153-29BD2603C95F}.Release|x64.Build.0 = Release|x64
 		{73DF34B4-A6B7-44E6-A153-29BD2603C95F}.Release|x86.ActiveCfg = Release|Win32
 		{73DF34B4-A6B7-44E6-A153-29BD2603C95F}.Release|x86.Build.0 = Release|Win32
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Debug|x64.ActiveCfg = Debug|x64
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Debug|x64.Build.0 = Debug|x64
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Debug|x86.ActiveCfg = Debug|Win32
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Debug|x86.Build.0 = Debug|Win32
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Release|x64.ActiveCfg = Release|x64
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Release|x64.Build.0 = Release|x64
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Release|x86.ActiveCfg = Release|Win32
+		{93E5B793-12DE-4E1F-8FA8-33A1917CC952}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,12 +4,17 @@
 #include <math.h>
 #include <time.h>
 
+#define SIZE 1000
+#define RAND 10
 const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
-const int SIZE = 10;
-const int RAND = 10;
 
 double* Vec = NULL;
 double** Matrix = NULL;
+
+union converter {
+	double number;
+	char bytes[sizeof(double)];
+};
 
 void randomAddVector(double *V) { // Сделать вещ, -10 : +10
 	for (auto i = 0; i < SIZE; i++) {
@@ -30,9 +35,9 @@ void printVector(double *V) {
 		double x = V[i];
 		if (fabs(x) < NEARZERO)
 			x = 0.0;
-		//printf("%f ", x);
+		printf("%f ", x);
 	}
-	//printf("\n\n");
+	printf("\n\n");
 }
 
 void printMatrix(double **A) {
@@ -41,11 +46,11 @@ void printMatrix(double **A) {
 			double x = A[i][j];
 			if (fabs(x) < NEARZERO)
 				x = 0.0;
-			//printf("%f ", x);
+			printf("%f ", x);
 		}
-		//printf("\n");
+		printf("\n");
 	}
-	//printf("\n\n");
+	printf("\n\n");
 }
 
 void init() {
@@ -75,8 +80,8 @@ double **transposedMatrix(double **A) {
 	return C;
 }
 
-double **matrixMultiplication(double* A[], double* B[]) {
-	double** C = (double**)malloc(SIZE * sizeof(double*));
+double **matrixMultiplication(double *A[], double *B[]) {
+	double **C = (double**)malloc(SIZE * sizeof(double*));
 	for (auto i = 0; i < SIZE; i++) {
 		C[i] = (double*)malloc(SIZE * sizeof(double));
 		for (auto j = 0; j < SIZE; j++) {
@@ -85,12 +90,15 @@ double **matrixMultiplication(double* A[], double* B[]) {
 				C[i][j] += A[i][k] * B[k][j];
 			}
 		}
+		if (i % 100 == 0) {
+			printf("count: %d, time: %.3f ms\n", i , clock() / 1000.0);
+		}
 	}
 	return C;
 }
 
 double **matrixCombination(double **A, double **B) {
-	double** C = (double**)malloc(SIZE * sizeof(double*));
+	double **C = (double**)malloc(SIZE * sizeof(double*));
 	for (auto i = 0; i < SIZE; i++) {
 		C[i] = (double*)malloc(SIZE * sizeof(double));
 		for (auto j = 0; j < SIZE; j++) {
@@ -111,7 +119,7 @@ double innerProduct(double U[], double V[]) // Скалярное произве
 
 double *matrixMultiplicationByVector(double *A[], double V[]) // Умножение матрицы на вектор
 {
-	double* C = (double*)malloc(SIZE * sizeof(double));
+	double *C = (double*)malloc(SIZE * sizeof(double));
 	for (auto i = 0; i < SIZE; i++) {
 		C[i] = innerProduct(A[i], V);
 	}
@@ -120,7 +128,7 @@ double *matrixMultiplicationByVector(double *A[], double V[]) // Умножен�
 
 double *vectorCombination(double U[], double alphaBeta, double V[]) // Сложение/Вычитание векторов
 {
-	double* C = (double*)malloc(SIZE * sizeof(double));
+	double *C = (double*)malloc(SIZE * sizeof(double));
 	for (auto i = 0; i < SIZE; i++) {
 		C[i] = U[i] + alphaBeta * V[i];
 	}
@@ -137,20 +145,20 @@ double vectorNorm(const double V[]) // Норма вектора
 	return max;
 }
 
-double *conjugateGradientSolver(double* A[], double B[]) {
+double *conjugateGradientSolver(double *A[], double B[]) {
 	double *X = (double*)malloc(SIZE * sizeof(double));
 	for (auto i = 0; i < SIZE; i++) {
 		X[i] = 0.0;
 	}
-	double* R = B;
-	double* P = R;
+	double *R = B;
+	double *P = R;
 	double norma = 0.f, normaOld = 0.f;
 	int k = 0;
 	int N = SIZE * 10;
 	while (1)
 	{
-		double* RSold = R;
-		double* AP = matrixMultiplicationByVector(A, P);
+		double *RSold = R;
+		double *AP = matrixMultiplicationByVector(A, P);
 		
 		double alpha = innerProduct(R, R) / fmax(innerProduct(P, AP), NEARZERO);
 		
@@ -169,50 +177,142 @@ double *conjugateGradientSolver(double* A[], double B[]) {
 			normaOld = norma;
 			norma = vectorNorm(R);
 			if ((normaOld == 0) || /*(norma > normaOld) ||*/ (fabs(1 - norma / normaOld) < NEARZERO)) {
-				//printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
+				printf("Norma: %f; count: %d; time: %.3f\n\n", norma, k, clock() / 1000.0);
 				break;
 			}
 		}
 		double beta = innerProduct(R, R) / fmax(innerProduct(RSold, RSold), NEARZERO);
 		P = vectorCombination(R, beta, P);
+
+		if (k % 1000 == 0) {
+			printf("count: %d, time: %.3f ms\n", k, clock() / 1000.0);
+		}
+
 		k++;
 	}
 	return X;
 }
 
+void writeToBin(double **A, double *B, int size) {
+	FILE *outputVector, *outputMatrix;
+	if ((fopen_s(&outputVector, "bin/res/vector.bin", "wb")) != 0) {
+		printf("The file 'vector.bin' was not opened\n");
+	}
+	else
+	{
+		union converter itemVector;
+		itemVector.number = (double)size;
+		fwrite(itemVector.bytes, sizeof(union converter), 1, outputVector);
+		
+		// Запись вектора
+		for (int i = 0; i < size; i++) {
+			itemVector.number = B[i];
+			fwrite(itemVector.bytes, sizeof(union converter), 1, outputVector);
+		}
+	}
+
+	if ((fopen_s(&outputMatrix, "bin/res/matrix.bin", "wb")) != 0) {
+		printf("The file 'matrix.bin' was not opened\n");
+	}
+	else
+	{
+		union converter itemMatrix;
+		itemMatrix.number = (double)size;
+		fwrite(itemMatrix.bytes, sizeof(union converter), 1, outputMatrix);
+
+		// Запись матрицы
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				itemMatrix.number = A[i][j];
+				fwrite(itemMatrix.bytes, sizeof(union converter), 1, outputMatrix);
+			}
+		}
+	}
+
+	fclose(outputVector);
+	fclose(outputMatrix);
+}
+
+void readFromBin() {
+	FILE *inputVector, *inputMatrix;
+	double *vector, **matrix;
+	int size;
+	if ((fopen_s(&inputVector, "bin/res/vector.bin", "rb")) != 0) {
+		printf("The file 'vector.bin' was not opened\n");
+	}
+	else
+	{
+		union converter itemVector;
+		fread(itemVector.bytes, sizeof(union converter), 1, inputVector);
+		size = (int)itemVector.number;
+		vector = (double*)malloc((size) * sizeof(double));
+		for (int i = 0; i < size; i++) {
+			fread(itemVector.bytes, sizeof(union converter), 1, inputVector);
+			vector[i] = itemVector.number;
+		}
+		//printVector(vector);
+	}
+
+	if ((fopen_s(&inputMatrix, "bin/res/matrix.bin", "rb")) != 0) {
+		printf("The file 'matrix.bin' was not opened\n");
+	}
+	else
+	{
+		union converter itemMatrix;
+		fread(itemMatrix.bytes, sizeof(union converter), 1, inputMatrix);
+		size = (int)itemMatrix.number;		
+		matrix = (double**)malloc((size) * sizeof(double*));
+		for (auto i = 0; i < size; i++) {
+			matrix[i] = (double*)malloc((size) * sizeof(double));
+			for (int j = 0; j < size; j++) {
+				fread(itemMatrix.bytes, sizeof(union converter), 1, inputMatrix);
+				matrix[i][j] = itemMatrix.number;
+			}
+		}
+		//printMatrix(matrix);
+	}
+
+	fclose(inputVector);
+	fclose(inputMatrix);
+}
+
 int main() {
 	srand(time(NULL));
 	init();
-	//printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
+	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
 
 	randomAddMatrix(Matrix); // Произвольная матрица
-	//printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
+	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Matrix, SIZE);
 
 	double **Ab_t = NULL;
 	Ab_t = transposedMatrix(Matrix); // Транспонированная матрица
-	//printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
+	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(Ab_t, SIZE);
 
 	double **AbAb_t = NULL;
 	AbAb_t = matrixMultiplication(Matrix, Ab_t); // Положительно определенная матрица B*B'
-	//printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
+	printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
 	//printMatrix(AbAb_t, SIZE);
 
 	double **A = AbAb_t; // Матрица А
+	//printMatrix(A, SIZE);
 
 	randomAddVector(Vec); // Произвольный вектор
-	//printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
-	printVector(Vec);
+	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
+	//printVector(Vec);
 
 	double *X = conjugateGradientSolver(A, Vec);
-	//printf("X time: %.3f ms\n", clock() / 1000.0);
-	printVector(X);
+	printf("X time: %.3f ms\n", clock() / 1000.0);
+	//printVector(X);
 
 	double *Check = matrixMultiplicationByVector(A, X);
-	//printf("Check time: %.3f ms\n", clock() / 1000.0);
-	printVector(Check);
+	printf("Check time: %.3f ms\n", clock() / 1000.0);
+	//printVector(Check);
 
+	writeToBin(A, Vec, (int)SIZE);
+	readFromBin();
+		
 	clear();
 	system("pause");
 	return 0; 

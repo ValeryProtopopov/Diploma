@@ -1,10 +1,13 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 
-#define SIZE 1000
+#define SIZE 10
 #define RAND 10
 const double NEARZERO = 1.0e-5; // Интерпретация нуля, но не ноль
 
@@ -91,7 +94,7 @@ double **matrixMultiplication(double *A[], double *B[]) {
 			}
 		}
 		if (i % 100 == 0) {
-			printf("count: %d, time: %.3f ms\n", i , clock() / 1000.0);
+			printf("count: %d, time: %.3f sec\n", i , clock() / 1000.0);
 		}
 	}
 	return C;
@@ -184,8 +187,8 @@ double *conjugateGradientSolver(double *A[], double B[]) {
 		double beta = innerProduct(R, R) / fmax(innerProduct(RSold, RSold), NEARZERO);
 		P = vectorCombination(R, beta, P);
 
-		if (k % 1000 == 0) {
-			printf("count: %d, time: %.3f ms\n", k, clock() / 1000.0);
+		if (k > 0 && k % 1000 == 0) {
+			//printf("count: %dk, time: %.3f sec. Norma: %f\n", k / 1000, clock() / 1000.0, norma);
 		}
 
 		k++;
@@ -193,9 +196,9 @@ double *conjugateGradientSolver(double *A[], double B[]) {
 	return X;
 }
 
-void writeToBin(double **A, double *B, int size) {
+void writeToBin(double **A, double *B, int size, char *vectorFileName, char *matrixFileName) {
 	FILE *outputVector, *outputMatrix;
-	if ((fopen_s(&outputVector, "bin/res/vector.bin", "wb")) != 0) {
+	if ((fopen_s(&outputVector, vectorFileName, "wb")) != 0) {
 		printf("The file 'vector.bin' was not opened\n");
 	}
 	else
@@ -209,9 +212,10 @@ void writeToBin(double **A, double *B, int size) {
 			itemVector.number = B[i];
 			fwrite(itemVector.bytes, sizeof(union converter), 1, outputVector);
 		}
+		fclose(outputVector);
 	}
 
-	if ((fopen_s(&outputMatrix, "bin/res/matrix.bin", "wb")) != 0) {
+	if ((fopen_s(&outputMatrix, matrixFileName, "wb")) != 0) {
 		printf("The file 'matrix.bin' was not opened\n");
 	}
 	else
@@ -227,17 +231,15 @@ void writeToBin(double **A, double *B, int size) {
 				fwrite(itemMatrix.bytes, sizeof(union converter), 1, outputMatrix);
 			}
 		}
+		fclose(outputMatrix);
 	}
-
-	fclose(outputVector);
-	fclose(outputMatrix);
 }
 
-void readFromBin() {
+void readFromBin(char *vectorFileName, char *matrixFileName) {
 	FILE *inputVector, *inputMatrix;
 	double *vector, **matrix;
 	int size;
-	if ((fopen_s(&inputVector, "bin/res/vector.bin", "rb")) != 0) {
+	if ((fopen_s(&inputVector, vectorFileName, "rb")) != 0) {
 		printf("The file 'vector.bin' was not opened\n");
 	}
 	else
@@ -250,10 +252,11 @@ void readFromBin() {
 			fread(itemVector.bytes, sizeof(union converter), 1, inputVector);
 			vector[i] = itemVector.number;
 		}
-		//printVector(vector);
+		Vec = vector;
+		fclose(inputVector);
 	}
 
-	if ((fopen_s(&inputMatrix, "bin/res/matrix.bin", "rb")) != 0) {
+	if ((fopen_s(&inputMatrix, matrixFileName, "rb")) != 0) {
 		printf("The file 'matrix.bin' was not opened\n");
 	}
 	else
@@ -270,49 +273,69 @@ void readFromBin() {
 			}
 		}
 		//printMatrix(matrix);
+		Matrix = matrix;
+		fclose(inputMatrix);
 	}
+}
 
-	fclose(inputVector);
-	fclose(inputMatrix);
+char *getFileName(char *name) {
+	char *fileWay = "bin/res/", fileSize[6], *slash = "/", *fileFormat = ".bin";
+	sprintf(fileSize, "%d", SIZE);
+	char *fileName = (char*)calloc(30, sizeof(char));
+	if (!fileName) {
+		printf("Error");
+		return 0;
+	}
+	strcat(fileName, fileWay);
+	strcat(fileName, name);
+	strcat(fileName, slash);
+	strcat(fileName, fileSize);
+	strcat(fileName, fileFormat);
+	return fileName;
 }
 
 int main() {
 	srand(time(NULL));
+	printf("Size: %i\n", SIZE);
 	init();
-	printf("Init vector and matrix complete: %.3f ms\n", clock() / 1000.0);
+	//printf("Init vector and matrix complete: %.3f sec\n", clock() / 1000.0);
 
-	randomAddMatrix(Matrix); // Произвольная матрица
-	printf("Random matrix complete: %.3f ms\n", clock() / 1000.0);
-	//printMatrix(Matrix, SIZE);
+	//randomAddMatrix(Matrix); // Произвольная матрица
+	//printf("Random matrix complete: %.3f sec\n", clock() / 1000.0);
+	//printMatrix(Matrix);
 
-	double **Ab_t = NULL;
-	Ab_t = transposedMatrix(Matrix); // Транспонированная матрица
-	printf("Transpose matrix complete: %.3f ms\n", clock() / 1000.0);
-	//printMatrix(Ab_t, SIZE);
+	//double **Ab_t = NULL;
+	//Ab_t = transposedMatrix(Matrix); // Транспонированная матрица
+	//printf("Transpose matrix complete: %.3f sec\n", clock() / 1000.0);
+	//printMatrix(Ab_t);
 
-	double **AbAb_t = NULL;
-	AbAb_t = matrixMultiplication(Matrix, Ab_t); // Положительно определенная матрица B*B'
-	printf("Matrix multiplication complete: %.3f ms\n", clock() / 1000.0);
-	//printMatrix(AbAb_t, SIZE);
+	//double **AbAb_t = NULL;
+	//AbAb_t = matrixMultiplication(Matrix, Ab_t); // Положительно определенная матрица B*B'
+	//printf("Matrix multiplication complete: %.3f sec\n", clock() / 1000.0);
+	//printMatrix(AbAb_t);
 
-	double **A = AbAb_t; // Матрица А
-	//printMatrix(A, SIZE);
+	//double **A = AbAb_t; // Матрица А
+	//printMatrix(A);
 
-	randomAddVector(Vec); // Произвольный вектор
-	printf("Random vector complete: %.3f ms\n", clock() / 1000.0);
+	//randomAddVector(Vec); // Произвольный вектор
+	//printf("Random vector complete: %.3f sec\n", clock() / 1000.0);
 	//printVector(Vec);
 
-	double *X = conjugateGradientSolver(A, Vec);
-	printf("X time: %.3f ms\n", clock() / 1000.0);
+	char *vectorFileName = getFileName("vector");
+	char *matrixFileName = getFileName("matrix");
+	//writeToBin(A, Vec, (int)SIZE, vectorFileName, matrixFileName);
+	readFromBin(vectorFileName, matrixFileName);
+	//printVector(Vec);
+	//printMatrix(Matrix);
+	
+	double *X = conjugateGradientSolver(Matrix, Vec);
+	printf("X time: %.3f sec\n", clock() / 1000.0);
 	//printVector(X);
 
-	double *Check = matrixMultiplicationByVector(A, X);
-	printf("Check time: %.3f ms\n", clock() / 1000.0);
+	double *Check = matrixMultiplicationByVector(Matrix, X);
+	printf("Check time: %.3f sec\n", clock() / 1000.0);
 	//printVector(Check);
 
-	writeToBin(A, Vec, (int)SIZE);
-	readFromBin();
-		
 	clear();
 	system("pause");
 	return 0; 

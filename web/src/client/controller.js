@@ -11,7 +11,21 @@ export function getSubTask(socket) {
 
     socket.on('send subtask', function (data) {
         if (!_.isEmpty(data.subtask)) {
-            calculate.calc(data.subtask);
+            calculate.calcWasm(data.subtask);
+
+        } else {
+            console.log(data.msg);
+        }
+    });
+}
+
+export function getSubTaskJS(socket) {
+    socket.emit('get subtask js');
+
+    socket.on('send subtask js', function (data) {
+        console.log('data', data);
+        if (!_.isEmpty(data.subtask)) {
+            calculate.calcJs(data.subtask);
         } else {
             console.log(data.msg);
         }

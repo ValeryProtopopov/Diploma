@@ -4,14 +4,18 @@ import server from './server.js'
 
 import { Pool, Vector, Matrix } from "./models/Pool.js";
 import * as Master from "./master.js"
-import config from 'config.js'
+import config from './config.js'
 
 const io = new Server(server);
-
-Master.readVectorFromBin(config.binaryFileDir +'vector/10.bin');
-for (let i = 0; i < 10; i++) {
-    Master.readMatrixFromBin(config.binaryFileDir + 'matrix/10.bin', i);
+const size = 1000;
+Master.readVectorFromBin(config.binaryFileDir +`vector/${size}.bin`);
+// for (let i = 0; i < size; i++) {
+let test = new Array(size);
+for (let i = 0; i < size; i++) {
+    test[i] = new Float64Array(size);
 }
+test = Master.readMatrixFromBinSync(config.binaryFileDir + `matrix/${size}.bin`);
+// }
 
 
 let connections = [];
@@ -37,6 +41,20 @@ io.on('connection', (socket) => {
         }
 
         socket.emit('send subtask', {subtask: subTask, msg: msg});
+    });
+
+    socket.on('get subtask js', function (data) {
+        let msg;
+        let subTask = {};
+        if (!_.isEmpty(Vector) && !_.isEmpty(test)) {
+            subTask.vector = Vector[0];
+            subTask.matrix = test;
+            subTask.size = size;
+        } else {
+            msg = "Пока нет задач для решения"
+        }
+
+        socket.emit('send subtask js', {subtask: subTask, msg: msg});
     });
 
     socket.on('get matrix line', function (data) {

@@ -35,10 +35,10 @@ export function readVectorFromBin(filename) {
     });
 }
 
-export function readMatrixFromBin(filename, page) {
+export function readMatrixFromBin(filename, page, size) {
     let vector;
     let firstItemSize = 8;
-    let position = page === 0 ? 0 : page * 8 * 10;
+    let position = page === 0 ? 0 : page * 8 * size;
 
     fs.open(filename, 'r', function(err, fd) {
         if(err) {
@@ -66,4 +66,34 @@ export function readMatrixFromBin(filename, page) {
             Matrix.push(vector);
         });
     });
+}
+
+export function readMatrixFromBinSync(filename) {
+    let matrix;
+    let firstItemSize = 8;
+
+    const file = fs.openSync(filename, 'r');
+    if (!file) {
+        console.log('cannot open file');
+    } else {
+        let firstItem = new Buffer.alloc(firstItemSize);
+        fs.readSync(file, firstItem, 0, 8, 0);
+        // console.log(firstItem.readDoubleLE(0));
+        let size = firstItem.readDoubleLE(0);
+        let position = 0;
+        let length = 16;
+        let buffer = new Buffer.alloc(length);
+        matrix = new Array(size);
+        for (let i = 0; i < size; i++) {
+            matrix[i] = new Float64Array(size);
+            for (let j = 0; j < size; j++) {
+                position += 8;
+                fs.readSync(file, buffer, 0, length, position);
+                matrix[i][j] = buffer.readDoubleLE(0);
+            }
+        }
+        // printMatrix(matrix);
+        console.log('finish read matrix');
+        return  matrix;
+    }
 }

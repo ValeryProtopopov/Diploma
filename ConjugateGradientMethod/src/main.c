@@ -198,7 +198,8 @@ double *conjugateGradientSolver(double *A[], double B[]) {
 
 void writeToBin(double **A, double *B, int size, char *vectorFileName, char *matrixFileName) {
 	FILE *outputVector, *outputMatrix;
-	if ((fopen_s(&outputVector, vectorFileName, "wb")) != 0) {
+	outputVector = fopen(vectorFileName, "wb");
+	if (outputVector == NULL) {
 		printf("The file 'vector.bin' was not opened\n");
 	}
 	else
@@ -215,7 +216,8 @@ void writeToBin(double **A, double *B, int size, char *vectorFileName, char *mat
 		fclose(outputVector);
 	}
 
-	if ((fopen_s(&outputMatrix, matrixFileName, "wb")) != 0) {
+	outputMatrix = fopen(matrixFileName, "wb");
+	if (outputMatrix == NULL) {
 		printf("The file 'matrix.bin' was not opened\n");
 	}
 	else
@@ -239,7 +241,8 @@ void readFromBin(char *vectorFileName, char *matrixFileName) {
 	FILE *inputVector, *inputMatrix;
 	double *vector, **matrix;
 	int size;
-	if ((fopen_s(&inputVector, vectorFileName, "rb")) != 0) {
+	inputVector = fopen(vectorFileName, "rb");
+	if (inputVector == NULL) {
 		printf("The file 'vector.bin' was not opened\n");
 	}
 	else
@@ -256,7 +259,8 @@ void readFromBin(char *vectorFileName, char *matrixFileName) {
 		fclose(inputVector);
 	}
 
-	if ((fopen_s(&inputMatrix, matrixFileName, "rb")) != 0) {
+	inputMatrix = fopen(matrixFileName, "rb");
+	if (inputMatrix == NULL) {
 		printf("The file 'matrix.bin' was not opened\n");
 	}
 	else

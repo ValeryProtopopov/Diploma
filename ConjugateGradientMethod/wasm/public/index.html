@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+</head>
+<body>
+<hr/>
+<button class="mybutton">Run myFunction</button>
+<hr/>
+<textarea class="emscripten" id="output" rows="8"></textarea>
+<hr>
+<script type='text/javascript'>
+    var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+            var element = document.getElementById('output');
+            if (element) element.value = ''; // clear browser cache
+            return function(text) {
+                if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                console.log(text);
+                if (element) {
+                    element.value += text + "\n";
+                    element.scrollTop = element.scrollHeight; // focus on bottom
+                }
+            };
+        })(),
+        printErr: function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            console.error(text);
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+            this.totalDependencies = Math.max(this.totalDependencies, left);
+        }
+    };
+    window.onerror = function(event) {
+        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+        Module.setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        Module.setStatus = function(text) {
+            if (text) Module.printErr('[post-exception status] ' + text);
+        };
+    };
+
+    document.querySelector('.mybutton').addEventListener('click', function(){
+        let inArray = new Float64Array([2.11111111, 2.1111111]);
+        let nByte = 8;
+        let innerProduct = Module.cwrap('innerProduct', 'number', ['Float64Array', 'Float64Array', 'number']);
+        // Takes an Float64Array, copies it to the heap and returns a pointer
+        function arrayToPtr(array) {
+            let ptr = Module._malloc(array.length * nByte);
+            Module.HEAPF64.set(array, ptr / nByte);
+            return ptr;
+        }
+
+        // Takes a pointer and  array length, and returns a Int32Array from the heap
+        function ptrToArray(ptr, length) {
+            let array = new Float64Array(length);
+            let pos = ptr / nByte;
+            array.set(Module.HEAPF64.subarray(pos, pos + length));
+            return array;
+        }
+
+        let result = innerProduct(arrayToPtr(inArray), arrayToPtr(inArray), inArray.length);
+
+        console.log(result);
+    });
+</script>
+<script async type="text/javascript" src="../innerProduct.js"></script>
+
+</body>
+</html>

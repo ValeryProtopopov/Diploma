@@ -34,4 +34,5 @@ async function start() {
             console.log(obj.instance.exports.innerProduct(Vec, Vec));
             var t1 = performance.now();
             console.log('Execution time: ' + (t1 - t0).toFixed(4) + " ms");
-        });}
+        });
+}

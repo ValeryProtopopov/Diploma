@@ -1,7 +1,7 @@
 import { conjugateGradientSolver } from './gradient.js'
 
-function arrayToPtr(array, nByte) {
-    let ptr = _malloc(array.length * nByte);
+function arrayToPtr(array, nByte, size) {
+    let ptr = _malloc(size * nByte);
     HEAPF64.set(array, ptr / nByte);
     return ptr;
 }
@@ -13,17 +13,22 @@ export function ptrToArray(ptr, length, nByte) {
     return array;
 }
 
-export function calcWasm(subtask) {
+export function calcWasm(subtask, socket) {
     console.log('subtask', subtask);
-    let nByte = 16;
-    let innerProduct = cwrap('innerProduct', 'Float64Array', ['Float64Array', 'Float64Array', 'number']);
+    let nByte = 8;
+    console.log('nByte', nByte);
+    let innerProduct = cwrap('innerProduct', 'number', ['Float64Array', 'Float64Array', 'number']);
 
-    let ptrVector = arrayToPtr(subtask.vector, nByte);
+    console.log('subtask ',subtask);
+    let ptrVector = arrayToPtr(subtask.vector, nByte, subtask.size);
     console.log('ptrVector', ptrVector);
-    let ptrMtrixLine = arrayToPtr(subtask.matrixLine, nByte);
+    let ptrMtrixLine = arrayToPtr(subtask.matrixLine, nByte, subtask.size);
     console.log('ptrMtrixLine', ptrMtrixLine);
-    let result = innerProduct(ptrVector, ptrMtrixLine, subtask.vector.length);
-    console.log(result);
+
+    let result = innerProduct(ptrVector, ptrMtrixLine, subtask.size);
+    _free(ptrVector);
+    _free(ptrMtrixLine);
+    socket.emit('send result',{result: result} );
 }
 
 export function calcJs(subtask) {

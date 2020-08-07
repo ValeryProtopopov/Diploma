@@ -2,20 +2,22 @@ import _ from 'lodash'
 import Server from 'socket.io';
 import server from './server.js'
 
-import { Pool, Vector, Matrix } from "./models/Pool.js";
+import { Pool, Vector, Matrix, Result } from "./models/Pool.js";
 import * as Master from "./master.js"
 import config from './config.js'
 
 const io = new Server(server);
-const size = 1000;
+const size = 10;
 Master.readVectorFromBin(config.binaryFileDir +`vector/${size}.bin`);
 // for (let i = 0; i < size; i++) {
+//     Master.readMatrixFromBin(config.binaryFileDir +`vector/${size}.bin`, i, size);
+// }
 let test = new Array(size);
 for (let i = 0; i < size; i++) {
     test[i] = new Float64Array(size);
 }
 test = Master.readMatrixFromBinSync(config.binaryFileDir + `matrix/${size}.bin`);
-// }
+
 
 
 let connections = [];
@@ -32,10 +34,10 @@ io.on('connection', (socket) => {
     socket.on('get subtask', function (data) {
         let msg;
         let subTask = {};
-        if (!_.isEmpty(Vector) && !_.isEmpty(Matrix)) {
-            subTask.vector = Vector[0];
-            subTask.matrixLine = Matrix[0];
-            console.log(subTask);
+        if (!_.isEmpty(Pool) ) {
+            subTask.vector = Pool.vector;
+            subTask.matrixLine = Pool.matrix;
+            subTask.size = size;
         } else {
             msg = "Пока нет задач для решения"
         }
@@ -50,6 +52,7 @@ io.on('connection', (socket) => {
             subTask.vector = Vector[0];
             subTask.matrix = test;
             subTask.size = size;
+            console.log(subTask);
         } else {
             msg = "Пока нет задач для решения"
         }
@@ -65,5 +68,11 @@ io.on('connection', (socket) => {
     socket.on('get vector', function (data) {
         const vector = [1,2];
         socket.emit('send vector', {vector: vector});
+    });
+
+    socket.on('send result', function (data) {
+        console.log(data.result);
+        if (data.result)
+            Result.push(data.result);
     });
 });

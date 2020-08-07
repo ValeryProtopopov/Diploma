@@ -16,7 +16,7 @@ export function readVectorFromBin(filename) {
             }
             let size = firstItem.readDoubleLE(0);
             let position = 0;
-            let length = 16;
+            let length = 8;
             vector = new Float64Array(size);
             console.log(firstItem.readDoubleLE(0));
             for (let i = 0; i < size; i++) {
@@ -81,7 +81,7 @@ export function readMatrixFromBinSync(filename) {
         // console.log(firstItem.readDoubleLE(0));
         let size = firstItem.readDoubleLE(0);
         let position = 0;
-        let length = 16;
+        let length = 8;
         let buffer = new Buffer.alloc(length);
         matrix = new Array(size);
         for (let i = 0; i < size; i++) {
@@ -95,5 +95,31 @@ export function readMatrixFromBinSync(filename) {
         // printMatrix(matrix);
         console.log('finish read matrix');
         return  matrix;
+    }
+}
+
+function readVectorFromBinSync(filename) {
+    let vector;
+    let firstItemSize = 8;
+
+    const file = fs.openSync(filename, 'r');
+    if (!file) {
+        console.log('cannot open file');
+    } else {
+        let firstItem = new Buffer.alloc(firstItemSize);
+        fs.readSync(file, firstItem, 0, 8, 0);
+        console.log(firstItem.readDoubleLE(0));
+        let size = firstItem.readDoubleLE(0);
+        let position = 0;
+        let length = 16;
+        let buffer = new Buffer.alloc(length);
+        vector = new Float64Array(size);
+        for (let i = 0; i < size; i++) {
+            position += 8;
+            fs.readSync(file, buffer, 0, length, position);
+            vector[i] = buffer.readDoubleLE(0);
+        }
+        // printVector(vector);
+        return vector;
     }
 }

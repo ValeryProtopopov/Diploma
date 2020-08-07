@@ -1,5 +1,4 @@
 import * as controller from './controller.js'
-import * as calculate from './calculate.js'
 
 $(function () {
     let socket = io();

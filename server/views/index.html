@@ -7,6 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/index.js"></script>
+    <script type="module" src="js/socket.js"></script>
 </head>
 <body>
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
@@ -23,12 +24,9 @@
             <h1 class="display-4">Запуск</h1>
             <p class="lead">При нажатии на старт начнется вычисление</p>
             <input type="button" value="Старт" onclick="start()" class="btn btn-lg btn-danger">
+            <div id="matrix"></div>
+            <div id="vector"></div>
         </div>
     </div>
-    <script>
-        $(function () {
-            let socket = io.connect();
-        });
-    </script>
 </body>
 </html>
